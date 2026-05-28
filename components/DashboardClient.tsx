@@ -512,6 +512,67 @@ export default function DashboardClient() {
     comparisonType = 'up';
   }
 
+  if (transactions !== undefined && transactions.length === 0 && (typeof window !== 'undefined' && localStorage.getItem('lastSyncDate') === null)) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface/90 backdrop-blur-2xl">
+        <div className="relative flex h-24 w-24 items-center justify-center">
+          {/* Glowing neon rings spinning in opposite directions */}
+          <div className="absolute inset-0 animate-spin">
+            <svg width="100%" height="100%" viewBox="0 0 100 100">
+              <circle
+                cx="50"
+                cy="50"
+                r="40"
+                stroke="var(--color-accent)"
+                strokeWidth="4"
+                strokeDasharray="15, 20"
+                fill="none"
+                opacity="0.85"
+                className="drop-shadow-[0_0_10px_rgba(0,224,122,0.65)]"
+              />
+            </svg>
+          </div>
+          <div className="absolute inset-0" style={{ animation: 'spin 3s linear infinite reverse' }}>
+            <svg width="100%" height="100%" viewBox="0 0 100 100">
+              <circle
+                cx="50"
+                cy="50"
+                r="32"
+                stroke="#7bed9f"
+                strokeWidth="2"
+                strokeDasharray="8, 12"
+                fill="none"
+                opacity="0.6"
+              />
+            </svg>
+          </div>
+          {/* Center glowing logo */}
+          <div className="h-14 w-14 rounded-2xl bg-accent-dim/15 border border-accent/40 flex items-center justify-center shadow-[0_0_25px_rgba(0,224,122,0.4)]">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#00e07a"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="drop-shadow-[0_0_5px_rgba(0,224,122,0.75)]"
+            >
+              <path d="M4 22V2M20 22L4 12M4 12l16-10" />
+            </svg>
+          </div>
+        </div>
+        <h2 className="mt-8 font-sans text-base font-bold tracking-wider text-accent drop-shadow-[0_0_6px_rgba(0,224,122,0.35)] uppercase animate-pulse">
+          Connecting & Syncing...
+        </h2>
+        <p className="mt-2 font-sans text-xs text-muted max-w-[260px] text-center leading-relaxed">
+          Retrieving your encrypted transactions securely from the vault.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
       {/* ── Left Column: Balance summary & Insights ─────────────────────── */}
