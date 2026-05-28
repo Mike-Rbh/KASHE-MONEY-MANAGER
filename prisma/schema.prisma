@@ -1,0 +1,113 @@
+// prisma/schema.prisma
+// Money Management PWA — PostgreSQL Schema
+// Run: npx prisma migrate dev --name init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────
+
+enum TransactionType {
+  income
+  expense
+}
+
+// ─────────────────────────────────────────────
+// Models
+// ─────────────────────────────────────────────
+
+model Transaction {
+  // Primary key — UUID for conflict-free merging during sync
+  id          String              @id @default(uuid()) @db.Uuid
+
+  // Core fields
+  amount      Decimal             @db.Decimal(12, 2)   // e.g. 9999999999.99
+  type        TransactionType
+  category    String
+  description String?             @db.VarChar(255)
+  date        DateTime            @db.Timestamptz(3)   // timezone-aware
+
+  // The localId from Dexie — used during sync to de-duplicate records
+  // that were created offline and then pushed to the server.
+  localId     String?             @unique @db.VarChar(36)
+
+  // Audit timestamps (server-side)
+  createdAt   DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime            @updatedAt       @db.Timestamptz(3)
+
+  // Soft-delete support — lets the sync layer propagate deletions
+  deletedAt   DateTime?           @db.Timestamptz(3)
+
+
+
+
+userId      String    @db.Uuid
+user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+
+
+  // ── Indexes ──────────────────────────────────
+  @@index([date])               // fast date-range queries
+  @@index([type])               // filter by income / expense
+  @@index([category])           // filter by category
+  @@index([deletedAt])          // efficiently skip soft-deleted rows
+  @@map("transactions")         // snake_case table name in Postgres
+}
+
+// --- NEXTAUTH MODELS ---
+
+model Account {
+  id                 String  @id @default(uuid()) @db.Uuid
+  userId             String  @db.Uuid
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?  @db.Text
+  access_token       String?  @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?  @db.Text
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(uuid()) @db.Uuid
+  sessionToken String   @unique
+  userId       String   @db.Uuid
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  
+  // Link to your transactions!
+  transactions  Transaction[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

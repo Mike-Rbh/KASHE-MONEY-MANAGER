@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface:      #050505;
+  --color-surface-2:    #0d0d0d;
+  --color-surface-3:    #151515;
+  --color-border:       #1a1a1a;
+  --color-border-glow:  #00e07a33;
+  --color-content:      #f0ede8;
+  --color-muted:        #666666;
+  --color-accent:       #00e07a;
+  --color-accent-dim:   rgba(0, 224, 122, 0.08);
+  --color-danger:       #ff4757;
+  --color-danger-dim:   rgba(255, 71, 87, 0.08);
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+
+  --spacing-nav: 4.5rem;   /* height of the bottom nav bar */
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-content antialiased;
+    background-image: 
+      radial-gradient(circle at 50% -100px, rgba(0, 224, 122, 0.08) 0%, transparent 60%),
+      radial-gradient(circle at 100% 60%, rgba(0, 224, 122, 0.03) 0%, transparent 40%);
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .pb-nav {
+    padding-bottom: var(--spacing-nav);
+  }
+
+  .text-neon-glow {
+    /* Glowing text-shadow removed for professional flat design */
+  }
+
+  .text-danger-glow {
+    /* Glowing text-shadow removed for professional flat design */
+  }
+
+  /* Glassmorphism */
+  .glass-panel {
+    @apply bg-surface-2/70 backdrop-blur-xl border border-border/40;
+  }
+
+  /* Hide scrollbar for carousel but allow scrolling */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  /* Rotating dotted border keyframe */
+  @keyframes rotate-dotted {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-rotate-dotted {
+    animation: rotate-dotted 20s linear infinite;
+  }
+
+  /* Breathing pulse */
+  @keyframes breathe {
+    0%, 100% {
+      opacity: 0.9;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.01);
+    }
+  }
+
+  .animate-breathe {
+    animation: breathe 3s ease-in-out infinite;
+  }
+}
