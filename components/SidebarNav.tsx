@@ -1,11 +1,13 @@
 // components/SidebarNav.tsx
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import type { Session } from "next-auth";
 import { db } from "@/lib/db";
+import SignOutLoader from "./SignOutLoader";
 import {
   HomeIcon,
   ArrowsRightLeftIcon,
@@ -61,10 +63,16 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function SidebarNav({ session }: SidebarNavProps) {
   const pathname = usePathname();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleSignOut = async () => {
     const confirmed = window.confirm("Sign out of your account? Your local offline records will be cleared.");
     if (!confirmed) return;
+
+    setIsLoggingOut(true);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("isLoggingOut", "true");
+    }
 
     try {
       await db.transactions.clear();
@@ -224,6 +232,7 @@ export default function SidebarNav({ session }: SidebarNavProps) {
           <span>Sign Out</span>
         </button>
       </div>
+      <SignOutLoader visible={isLoggingOut} />
     </aside>
   );
 }

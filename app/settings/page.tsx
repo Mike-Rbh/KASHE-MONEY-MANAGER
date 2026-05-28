@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 import { db, LocalTransaction } from '@/lib/db';
 import { runSync } from '@/lib/sync';
+import SignOutLoader from '@/components/SignOutLoader';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -241,6 +242,7 @@ export default function SettingsPage() {
   const [wipeState,   setWipeState]   = useState<ActionState>('idle');
   const [lastSynced,  setLastSynced]  = useState<string | null>(null);
   const [syncError,   setSyncError]   = useState<string | null>(null);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     setLastSynced(localStorage.getItem('lastSyncDate'));
@@ -325,6 +327,10 @@ export default function SettingsPage() {
   }, []);
 
   const handleSignOut = useCallback(async () => {
+    setIsLoggingOut(true);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('isLoggingOut', 'true');
+    }
     try {
       await db.transactions.clear();
       localStorage.removeItem('lastSyncDate');
@@ -466,6 +472,7 @@ export default function SettingsPage() {
         </div>
 
       </main>
+      <SignOutLoader visible={isLoggingOut} />
     </div>
   );
 }

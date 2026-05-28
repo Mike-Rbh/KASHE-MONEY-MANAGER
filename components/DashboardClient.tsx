@@ -376,6 +376,10 @@ export default function DashboardClient() {
 
   // ─── One-time cleanup of any legacy mock transaction seeds ──────────────────
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.removeItem('isLoggingOut');
+    }
+
     const cleanupMockSeeds = async () => {
       try {
         const allTxs = await db.transactions.toArray();
@@ -512,7 +516,7 @@ export default function DashboardClient() {
     comparisonType = 'up';
   }
 
-  if (transactions !== undefined && transactions.length === 0 && (typeof window !== 'undefined' && localStorage.getItem('lastSyncDate') === null)) {
+  if (transactions !== undefined && transactions.length === 0 && (typeof window !== 'undefined' && localStorage.getItem('lastSyncDate') === null && sessionStorage.getItem('isLoggingOut') !== 'true')) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface/90 backdrop-blur-2xl">
         <div className="relative flex h-24 w-24 items-center justify-center">
