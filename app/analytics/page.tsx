@@ -565,7 +565,7 @@ export default function AnalyticsPage() {
                   <ResponsiveContainer width="100%" height={220}>
                     <BarChart
                       data={bars}
-                      margin={{ top: 8, right: 0, left: -24, bottom: 0 }}
+                      margin={{ top: 8, right: 4, left: -12, bottom: 0 }}
                       barGap={5}
                     >
                       {/* SVG Gradient definitions for glowing neon fills */}
@@ -596,7 +596,7 @@ export default function AnalyticsPage() {
                         tick={{ fill: "rgba(255, 255, 255, 0.35)", fontSize: 10, fontFamily: 'var(--font-sans)', fontWeight: 500 }}
                         axisLine={false}
                         tickLine={false}
-                        width={36}
+                        width={42}
                       />
                       <Tooltip
                         content={<BarTooltip />}
