@@ -373,6 +373,40 @@ function TransactionRow({ tx, categoryMeta }: { tx: LocalTransaction; categoryMe
 
 export default function DashboardClient() {
   const [visibleCount, setVisibleCount] = useState(10);
+
+  // ─── One-time cleanup of any legacy mock transaction seeds ──────────────────
+  useEffect(() => {
+    const cleanupMockSeeds = async () => {
+      try {
+        const allTxs = await db.transactions.toArray();
+        const mockSeeds = allTxs.filter(t => 
+          t.syncStatus !== 'deleted' && 
+          (
+            (t.description === 'Coffee Shop' && t.amount === 15) ||
+            (t.description === 'Amazon Purchase' && t.amount === 120) ||
+            (t.description === 'Salary' && t.amount === 15085) ||
+            (t.description === 'Groceries' && t.amount === 2450)
+          )
+        );
+
+        if (mockSeeds.length > 0) {
+          console.log(`Cleaning up ${mockSeeds.length} legacy mock transaction seeds...`);
+          for (const seed of mockSeeds) {
+            await db.transactions.update(seed.localId, {
+              syncStatus: 'deleted',
+              deletedAt: new Date(),
+              updatedAt: new Date(),
+            });
+          }
+          const { runSync } = await import('@/lib/sync');
+          await runSync();
+        }
+      } catch (err) {
+        console.error('Error cleaning up mock seeds:', err);
+      }
+    };
+    cleanupMockSeeds();
+  }, []);
   const transactions = useLiveQuery(
     async () => {
       const arr = await db.transactions
