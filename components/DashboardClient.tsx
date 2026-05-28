@@ -396,63 +396,6 @@ export default function DashboardClient() {
     return map;
   }, [categoriesList]);
 
-  // ── Seeding logic for first startup matching the mockup ─────────────────────
-  useEffect(() => {
-    const seedMockData = async () => {
-      if (transactions !== undefined && transactions.length === 0) {
-        const today = new Date();
-        today.setHours(9, 30, 0, 0);
-
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        yesterday.setHours(14, 0, 0, 0);
-
-        const salaryDate = new Date();
-        salaryDate.setDate(salaryDate.getDate() - 3);
-        salaryDate.setHours(10, 15, 0, 0);
-
-        const groceriesDate = new Date();
-        groceriesDate.setDate(groceriesDate.getDate() - 4);
-        groceriesDate.setHours(18, 30, 0, 0);
-
-        // Seed calculations so balance is exactly 12,500.00 DZD
-        // 15,085 - 2,450 - 120 - 15 = 12,500 DZD
-        await addTransaction({
-          amount: 15,
-          type: 'expense',
-          category: 'food',
-          description: 'Coffee Shop',
-          date: today,
-        });
-
-        await addTransaction({
-          amount: 120,
-          type: 'expense',
-          category: 'shopping',
-          description: 'Amazon Purchase',
-          date: yesterday,
-        });
-
-        await addTransaction({
-          amount: 15085,
-          type: 'income',
-          category: 'salary',
-          description: 'Salary',
-          date: salaryDate,
-        });
-
-        await addTransaction({
-          amount: 2450,
-          type: 'expense',
-          category: 'food',
-          description: 'Groceries',
-          date: groceriesDate,
-        });
-      }
-    };
-    seedMockData();
-  }, [transactions]);
-
   const totalIncome  = transactions?.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0) ?? 0;
   const totalExpense = transactions?.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0) ?? 0;
   const balance      = totalIncome - totalExpense;
