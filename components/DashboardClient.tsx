@@ -404,14 +404,21 @@ export default function DashboardClient() {
   const hasMore      = transactions ? transactions.length > visibleCount : false;
 
   // --- Dynamic Story calculations ---
-  // Top Spending Category
   const expenseCategories = transactions?.filter(t => t.type === 'expense') ?? [];
+  const incomeCategories = transactions?.filter(t => t.type === 'income') ?? [];
+
+  // Card 1: Top Spending Category (for the last 7 days)
+  const startOfWeek = new Date();
+  startOfWeek.setDate(startOfWeek.getDate() - 7);
+  const expenseThisWeek = expenseCategories.filter(t => new Date(t.date) >= startOfWeek);
+  
   const catSums: Record<string, number> = {};
-  expenseCategories.forEach(t => {
+  expenseThisWeek.forEach(t => {
     catSums[t.category] = (catSums[t.category] ?? 0) + t.amount;
   });
-  let topCategory = 'Groceries';
-  let topSpendingAmount = 2450;
+
+  let topCategory = 'No Expenses';
+  let topSpendingAmount = 0;
   const sortedCats = Object.entries(catSums).sort((a, b) => b[1] - a[1]);
   if (sortedCats.length > 0) {
     const topCatMeta = categoryMap.get(sortedCats[0][0]);
@@ -419,16 +426,57 @@ export default function DashboardClient() {
     topSpendingAmount = sortedCats[0][1];
   }
 
-  // Daily Average
-  let dailyAverage = 85;
+  // Card 2: Daily Average (derived from all recorded expenses)
+  let dailyAverage = 0;
   if (expenseCategories.length > 0) {
     const dates = expenseCategories.map(t => new Date(t.date).toDateString());
     const uniqueDays = Math.max(1, new Set(dates).size);
     dailyAverage = Math.round(totalExpense / uniqueDays);
   }
 
-  // Budget Progress (Simulated based on dynamically derived numbers)
-  const budgetProgress = totalIncome > 0 ? Math.min(100, Math.round((totalExpense / totalIncome) * 100)) : 75;
+  // Card 3: Budget Progress (this month's expenses vs this month's income, fallback to 50k budget limit)
+  const now = new Date();
+  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const expensesThisMonth = expenseCategories
+    .filter(t => new Date(t.date) >= startOfThisMonth)
+    .reduce((s, t) => s + t.amount, 0);
+  const incomeThisMonth = incomeCategories
+    .filter(t => new Date(t.date) >= startOfThisMonth)
+    .reduce((s, t) => s + t.amount, 0);
+
+  const budgetLimit = incomeThisMonth > 0 ? incomeThisMonth : 50000;
+  const budgetProgress = Math.min(100, Math.round((expensesThisMonth / budgetLimit) * 100));
+
+  // Card 4: Comparison vs Last Month
+  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+
+  const expensesLastMonth = expenseCategories
+    .filter(t => {
+      const d = new Date(t.date);
+      return d >= startOfLastMonth && d <= endOfLastMonth;
+    })
+    .reduce((s, t) => s + t.amount, 0);
+
+  let comparisonPercent = 0;
+  let comparisonText = 'same as last month';
+  let comparisonType: 'up' | 'down' | 'same' = 'same';
+
+  if (expensesLastMonth > 0) {
+    const diff = ((expensesThisMonth - expensesLastMonth) / expensesLastMonth) * 100;
+    comparisonPercent = Math.round(Math.abs(diff));
+    if (diff > 0) {
+      comparisonText = 'more spent';
+      comparisonType = 'up';
+    } else if (diff < 0) {
+      comparisonText = 'less spent';
+      comparisonType = 'down';
+    }
+  } else if (expensesThisMonth > 0) {
+    comparisonPercent = 100;
+    comparisonText = 'more spent';
+    comparisonType = 'up';
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
@@ -657,27 +705,60 @@ export default function DashboardClient() {
 
             {/* Card 4: Comparison vs Last Month */}
             <div className="glass-panel relative h-[138px] sm:h-[150px] w-[124px] sm:w-full flex-shrink-0 snap-start rounded-2xl p-3 sm:p-4 flex flex-col justify-between overflow-hidden">
-              {/* Sparkline rising line */}
-              <svg className="absolute bottom-1 right-2 h-5 sm:h-6 w-12 sm:w-16 opacity-35" viewBox="0 0 50 15" fill="none">
-                <path d="M 0,12 C 10,10 20,11 30,5 C 40,4 45,1 50,2" stroke="var(--color-accent)" strokeWidth="1.2" strokeLinecap="round" />
-                <circle cx="50" cy="2" r="1.5" fill="var(--color-accent)" />
-              </svg>
-
-              <div className="flex h-7.5 w-7.5 items-center justify-center rounded-full bg-accent-dim/10 border border-accent/15">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3.5 w-3.5 text-accent">
-                  <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                  <polyline points="17 6 23 6 23 12" />
+              {/* Sparkline line */}
+              {comparisonType === 'up' ? (
+                <svg className="absolute bottom-1 right-2 h-5 sm:h-6 w-12 sm:w-16 opacity-35" viewBox="0 0 50 15" fill="none">
+                  <path d="M 0,13 C 10,11 20,9 30,5 C 40,4 45,1 50,2" stroke="var(--color-danger)" strokeWidth="1.2" strokeLinecap="round" />
+                  <circle cx="50" cy="2" r="1.5" fill="var(--color-danger)" />
                 </svg>
+              ) : comparisonType === 'down' ? (
+                <svg className="absolute bottom-1 right-2 h-5 sm:h-6 w-12 sm:w-16 opacity-35" viewBox="0 0 50 15" fill="none">
+                  <path d="M 0,2 C 10,4 20,5 30,9 C 40,11 45,14 50,13" stroke="var(--color-accent)" strokeWidth="1.2" strokeLinecap="round" />
+                  <circle cx="50" cy="13" r="1.5" fill="var(--color-accent)" />
+                </svg>
+              ) : (
+                <svg className="absolute bottom-1 right-2 h-5 sm:h-6 w-12 sm:w-16 opacity-35" viewBox="0 0 50 15" fill="none">
+                  <path d="M 0,8 L 50,8" stroke="rgba(255, 255, 255, 0.2)" strokeWidth="1.2" strokeLinecap="round" />
+                  <circle cx="50" cy="8" r="1.5" fill="rgba(255, 255, 255, 0.2)" />
+                </svg>
+              )}
+
+              <div className={[
+                'flex h-7.5 w-7.5 items-center justify-center rounded-full border', 
+                comparisonType === 'up' ? 'bg-danger-dim/10 border-danger/15' : 
+                comparisonType === 'down' ? 'bg-accent-dim/10 border-accent/15' : 
+                'bg-surface-3/10 border-border/15'
+              ].join(' ')}>
+                {comparisonType === 'up' ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3.5 w-3.5 text-danger">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    <polyline points="17 6 23 6 23 12" />
+                  </svg>
+                ) : comparisonType === 'down' ? (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3.5 w-3.5 text-accent">
+                    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+                    <polyline points="17 18 23 18 23 12" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="h-3.5 w-3.5 text-muted">
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                )}
               </div>
 
               <div>
                 <p className="font-sans text-[0.56rem] font-medium leading-tight text-muted">
                   Comparison vs last month
                 </p>
-                <h3 className="mt-0.5 font-mono text-sm font-semibold text-accent leading-none">
-                  +12%
+                <h3 className={[
+                  'mt-0.5 font-mono text-sm font-semibold leading-none', 
+                  comparisonType === 'up' ? 'text-danger' : 
+                  comparisonType === 'down' ? 'text-accent' : 
+                  'text-content'
+                ].join(' ')}>
+                  {comparisonType === 'up' ? '+' : comparisonType === 'down' ? '-' : ''}{comparisonPercent}%
                 </h3>
-                <p className="font-sans text-[0.55rem] text-muted leading-none mt-0.5">more spent</p>
+                <p className="font-sans text-[0.55rem] text-muted leading-none mt-0.5">{comparisonText}</p>
               </div>
             </div>
 
