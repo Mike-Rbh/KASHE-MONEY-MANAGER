@@ -887,12 +887,27 @@ export default function DashboardClient() {
         )}
 
         {transactions !== undefined && transactions.length === 0 && (
-          <div className="flex flex-col items-center gap-3.5 rounded-3xl border border-dashed border-border/60 bg-transparent px-6 py-12 text-center">
-            <span className="text-4xl" aria-hidden="true">💸</span>
+          <div className="flex flex-col items-center gap-4 rounded-3xl border border-dashed border-border/60 bg-transparent px-6 py-12 text-center w-full">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-dim/15 border border-accent/25 shadow-[0_0_15px_rgba(0,224,122,0.15)] text-accent" aria-hidden="true">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="drop-shadow-[0_0_4px_rgba(0,224,122,0.4)]"
+              >
+                <line x1="12" y1="1" x2="12" y2="23" />
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </div>
             <p className="font-sans text-sm text-muted">No transactions recorded yet.</p>
             <Link
               href="/add"
-              className="mt-1.5 rounded-full bg-accent px-5 py-2.5 font-sans text-xs font-semibold text-surface transition-all hover:brightness-110 active:scale-95"
+              className="mt-1 rounded-full bg-accent px-5 py-2.5 font-sans text-xs font-semibold text-surface transition-all hover:brightness-110 active:scale-95"
             >
               Add your first transaction
             </Link>

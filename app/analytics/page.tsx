@@ -348,8 +348,24 @@ function ChartCard({
 
 function EmptyChart({ message }: { message: string }) {
   return (
-    <div className="flex h-48 flex-col items-center justify-center gap-2">
-      <span className="text-3xl" aria-hidden="true">📊</span>
+    <div className="flex h-48 flex-col items-center justify-center gap-4">
+      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-dim/15 border border-accent/25 shadow-[0_0_15px_rgba(0,224,122,0.15)] text-accent" aria-hidden="true">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="drop-shadow-[0_0_4px_rgba(0,224,122,0.4)]"
+        >
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      </div>
       <p className="font-sans text-xs text-muted">{message}</p>
     </div>
   );

@@ -700,8 +700,23 @@ export default function TransactionsPage() {
 
         {/* Empty — no records at all */}
         {transactions !== undefined && transactions.length === 0 && (
-          <div className="flex flex-col items-center gap-3.5 px-6 py-24 text-center">
-            <span className="text-5xl" aria-hidden="true">📭</span>
+          <div className="flex flex-col items-center gap-4 px-6 py-24 text-center">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-dim/15 border border-accent/25 shadow-[0_0_15px_rgba(0,224,122,0.15)] text-accent" aria-hidden="true">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="drop-shadow-[0_0_4px_rgba(0,224,122,0.4)]"
+              >
+                <polyline points="22 12 16 12 14 15 10 15 8 12 2 12" />
+                <path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+              </svg>
+            </div>
             <p className="font-sans text-sm font-semibold text-content">No transactions yet</p>
             <p className="font-sans text-xs text-muted leading-relaxed">
               Tap the add button on the top right to log your first record!
@@ -711,8 +726,23 @@ export default function TransactionsPage() {
 
         {/* Empty — records exist but search/filter returned nothing */}
         {transactions !== undefined && transactions.length > 0 && filtered.length === 0 && (
-          <div className="flex flex-col items-center gap-3.5 px-6 py-24 text-center">
-            <span className="text-5xl" aria-hidden="true">🔍</span>
+          <div className="flex flex-col items-center gap-4 px-6 py-24 text-center">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-dim/15 border border-accent/25 shadow-[0_0_15px_rgba(0,224,122,0.15)] text-accent" aria-hidden="true">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="drop-shadow-[0_0_4px_rgba(0,224,122,0.4)]"
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </div>
             <p className="font-sans text-sm font-semibold text-content">No matches found</p>
             <p className="font-sans text-xs text-muted leading-relaxed">
               Try typing a different keyword or clear active filters.
